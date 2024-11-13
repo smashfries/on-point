@@ -1,10 +1,10 @@
 import { db } from "$lib/server/db/index.js";
 import { users } from "$lib/server/db/schema.js";
-import { fail, redirect, type Actions } from "@sveltejs/kit";
+import { fail, redirect } from "@sveltejs/kit";
 import { eq } from "drizzle-orm";
 import * as argon2 from 'argon2';
 import { createSession } from "$lib/server/session";
-import type { PageServerLoad } from "../$types";
+import type { PageServerLoad, Actions } from "../$types";
 
 export const actions = {
     default: async ({ request, cookies }) => {

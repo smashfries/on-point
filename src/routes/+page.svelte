@@ -2,7 +2,6 @@
 	import type { PageData } from './$types';
 
 	let { data }: { data: PageData } = $props();
-console.log(data)
 </script>
 
 <div class="mt-10 text-center">

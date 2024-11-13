@@ -1,13 +1,80 @@
-<div class="mx-auto max-w-7xl mt-5">
-	<h1 class="text-3xl font-medium tracking-tight dark:text-zinc-50">Projects</h1>
+<script lang="ts">
+	import LogOut from 'lucide-svelte/icons/log-out';
+	import { computePosition, shift, offset, autoUpdate } from '@floating-ui/dom';
 
-    <div class="mt-10 flex flex-wrap gap-5">
-        <a href="#" class="border rounded-md w-72 h-24 bg-slate-50 dark:bg-zinc-700 dark:border-transparent dark:text-zinc-50 flex items-stretch shadow-sm p-1 gap-2">
-            <div class="flex h-full w-1 bg-red-100 rounded-md"></div>
-            <div>
-                <h2 class="text-lg font-medium tracking-tight">Trelae</h2>
-                <p class="text-sm text-gray-600 dark:text-zinc-200">Better business software</p>
-            </div>
-        </a>
-    </div>
+	let logoutButton: HTMLButtonElement;
+	let logoutButtonTooltip: HTMLDivElement;
+	let showLogoutButtonTooltip = false;
+
+	let cleanup: any;
+
+	function updateTooltipPosition() {
+		computePosition(logoutButton, logoutButtonTooltip, {
+			middleware: [shift(), offset(7)]
+		}).then(({ x, y }) => {
+			Object.assign(logoutButtonTooltip.style, {
+				left: `${x}px`,
+				top: `${y}px`
+			});
+		});
+	}
+
+	function onLogoutButtonHover() {
+		if (cleanup) return;
+		logoutButtonTooltip.style.display = 'block';
+		cleanup = autoUpdate(logoutButton, logoutButtonTooltip, updateTooltipPosition);
+		showLogoutButtonTooltip = true;
+	}
+
+	function onLogoutButtonExit() {
+		if (cleanup) {
+			setTimeout(() => {
+				logoutButtonTooltip.style.display = '';
+			}, 200);
+			cleanup();
+			cleanup = null;
+			showLogoutButtonTooltip = false;
+		}
+	}
+</script>
+
+<div class="mx-auto mt-5 max-w-7xl">
+	<div class="flex items-center justify-between">
+		<h1 class="text-3xl font-medium tracking-tight dark:text-zinc-50">Projects</h1>
+		<form method="POST" action="/logout">
+			<button
+                type="submit"
+                aria-label="Log out"
+				on:mouseenter={onLogoutButtonHover}
+				on:focus={onLogoutButtonHover}
+				on:mouseleave={onLogoutButtonExit}
+				on:blur={onLogoutButtonExit}
+				bind:this={logoutButton}
+				aria-describedby="logout-tooltip"><LogOut class="size-5 dark:text-zinc-50" /></button
+			>
+		</form>
+		<div
+			bind:this={logoutButtonTooltip}
+			id="logout-tooltip"
+			role="tooltip"
+			class="absolute left-0 top-0 hidden w-fit rounded-md bg-zinc-700 p-1 px-2 text-xs text-zinc-50 shadow-md transition duration-200 dark:bg-zinc-700 dark:text-zinc-50 {showLogoutButtonTooltip
+				? 'opacity-1 translate-y-0'
+				: 'translate-y-2 opacity-0'}"
+		>
+			Log out
+		</div>
+	</div>
+
+	<div class="mt-10 flex flex-wrap gap-5">
+		<a
+			href="#"
+			class="flex h-24 w-72 items-stretch gap-2 rounded-md border bg-slate-50 p-1 shadow-sm dark:border-transparent dark:bg-zinc-700 dark:text-zinc-50"
+		>
+			<div class="flex h-full w-1 rounded-md bg-red-100"></div>
+			<div>
+				<h2 class="text-lg font-medium tracking-tight">Trelae</h2>
+				<p class="text-sm text-gray-600 dark:text-zinc-200">Better business software</p>
+			</div>
+		</a>
+	</div>
 </div>
