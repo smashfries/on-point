@@ -5,7 +5,7 @@
 </script>
 
 <div class="text-center mt-10">
-    <span class="tracking-tighter italic text-zinc-400 dark:text-zinc-300 font-medium">on point</span>
+    <a href="/" class="tracking-tighter italic text-zinc-400 font-medium">on point</a>
 </div>
 <form method="POST" class="w-96 mx-auto mt-3 rounded-md shadow-lg dark:bg-zinc-700 dark:text-zinc-50 p-5">
     <h1 class="text-2xl font-medium tracking-tight">Sign up</h1>
