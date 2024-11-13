@@ -40,7 +40,9 @@
 		"vite": "^5.0.3"
 	},
 	"dependencies": {
+		"argon2": "^0.41.1",
 		"drizzle-orm": "^0.33.0",
+		"jose": "^5.9.6",
 		"postgres": "^3.4.4"
 	}
 }
