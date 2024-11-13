@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm';
 import { pgTable, text, uuid, timestamp, boolean } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
@@ -9,8 +10,13 @@ export const users = pgTable('users', {
 	createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 
+export const usersRelations = relations(users, ({many}) => ({
+	sessions: many(sessions)
+}))
+
 export const sessions = pgTable('sessions', {
 	id: uuid('id').defaultRandom().primaryKey(),
+	userId: uuid('user_id').notNull().references(() => users.id),
 	browser: text('browser'),
 	device: text('device'),
 	os: text('os'),
@@ -23,3 +29,7 @@ export const sessions = pgTable('sessions', {
 	updatedAt: timestamp('updated_at').defaultNow().notNull(),
 	createdAt: timestamp('created_at').defaultNow().notNull()
 })
+
+export const sessionsRelations = relations(sessions, ({one}) => ({
+	users: one(users)
+}))
