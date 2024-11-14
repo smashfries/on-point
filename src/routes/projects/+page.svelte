@@ -1,10 +1,13 @@
 <script lang="ts">
+    import type { PageData } from './$types';
 	import LogOut from 'lucide-svelte/icons/log-out';
 	import { computePosition, shift, offset, autoUpdate } from '@floating-ui/dom';
 
+	let {data}: {data: PageData} = $props();
+
 	let logoutButton: HTMLButtonElement;
 	let logoutButtonTooltip: HTMLDivElement;
-	let showLogoutButtonTooltip = false;
+	let showLogoutButtonTooltip = $state(false);
 
 	let cleanup: any;
 
@@ -45,10 +48,10 @@
 			<button
                 type="submit"
                 aria-label="Log out"
-				on:mouseenter={onLogoutButtonHover}
-				on:focus={onLogoutButtonHover}
-				on:mouseleave={onLogoutButtonExit}
-				on:blur={onLogoutButtonExit}
+				onmouseenter={onLogoutButtonHover}
+				onfocus={onLogoutButtonHover}
+				onmouseleave={onLogoutButtonExit}
+				onblur={onLogoutButtonExit}
 				bind:this={logoutButton}
 				aria-describedby="logout-tooltip"><LogOut class="size-5 dark:text-zinc-50" /></button
 			>
@@ -66,6 +69,7 @@
 	</div>
 
 	<div class="mt-10 flex flex-wrap gap-5">
+		{#each data.projects as project (project.id)}
 		<a
 			href="#"
 			class="flex h-24 w-72 items-stretch gap-2 rounded-md border bg-slate-50 p-1 shadow-sm dark:border-transparent dark:bg-zinc-700 dark:text-zinc-50"
@@ -76,5 +80,6 @@
 				<p class="text-sm text-gray-600 dark:text-zinc-200">Better business software</p>
 			</div>
 		</a>
+		{/each}
 	</div>
 </div>
