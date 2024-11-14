@@ -48,3 +48,14 @@ export const projects = pgTable('projects', {
 export const projectsRelations = relations(projects, ({one}) => ({
 	users: one(users)
 }))
+
+export const tasks = pgTable('tasks', {
+	id: uuid('id').defaultRandom().primaryKey(),
+	projectId: uuid('project_id').references(() => projects.id),
+	userId: uuid('user_id').references(() => users.id).notNull(),
+	title: text('title').notNull(),
+	completed: boolean('completed').notNull(),
+	completedAt: timestamp('completed_at'),
+	updatedAt: timestamp('updated_at').notNull().defaultNow(),
+	createdAt: timestamp('created_at').notNull().defaultNow()
+})
