@@ -25,6 +25,7 @@ export const handle: Handle = async ({ event, resolve }) => {
         return response;
     } catch (e) {
         if (e instanceof JWTExpired) {
+            console.log('token expired')
             const refreshToken = event.cookies.get('refreshToken')
 
             if (!refreshToken) {
@@ -32,11 +33,17 @@ export const handle: Handle = async ({ event, resolve }) => {
                 return response;
             }
 
+            console.log('there is a refresh token, so we must try to refresh')
+
             const payload = jwt.decodeJwt(accessToken);
             const sessionId = payload.sessionId as string;
 
+            console.log(sessionId)
+
             try {
                 const session = await db.select({ id: sessions.id, isActive: sessions.isActive, refreshTokenHash: sessions.refreshTokenHash }).from(sessions).where(eq(sessions.id, sessionId))
+
+                console.log('Existing session: ' + session)
 
                 if (session.length < 0) {
                     throw new Error('Session not found')
@@ -47,6 +54,7 @@ export const handle: Handle = async ({ event, resolve }) => {
                 }
 
                 if (!(await argon2.verify(session[0].refreshTokenHash, refreshToken))) {
+                    console.log('could not verify refreshtoken')
                     const response = await resolve(event);
                     return response;
                 }
@@ -83,7 +91,7 @@ export const handle: Handle = async ({ event, resolve }) => {
             const cookieOptions = { httpOnly: true, path: '/', sameSite: 'strict' as 'strict', expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) }
 
             event.cookies.set('accessToken', newAccessToken, cookieOptions)
-            event.cookies.set('refreshToken', refreshToken, cookieOptions)
+            event.cookies.set('refreshToken', newRefreshToken, cookieOptions)
 
             event.locals.user = payload.userId as string;
             const response = await resolve(event);
