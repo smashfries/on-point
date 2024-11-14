@@ -48,14 +48,13 @@
 
 <div class="mx-auto mt-5 max-w-7xl px-6">
 	<div class="flex items-center justify-between">
-		<h1 class="flex items-end gap-4 text-3xl font-medium tracking-tight dark:text-zinc-50">
+		<h1 class="flex items-center gap-4 text-3xl font-medium tracking-tight dark:text-zinc-50">
 			Projects <button
 				onclick={() => {
 					newProjectDialog.showModal();
 					setTimeout(() => (newProjectDialogOpen = true)), 10;
 				}}
-				class="flex size-8 items-center justify-center rounded-full bg-zinc-700 dark:bg-zinc-50"
-				><Plus class="px-0.5 text-zinc-50 dark:text-zinc-700" /></button
+				><Plus class="bg-zinc-700 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-700 rounded-full p-2 size-9" /></button 
 			>
 		</h1>
 		<form method="POST" action="/logout">
@@ -119,10 +118,11 @@
 	<button onclick={() => {newProjectDialogOpen = false; setTimeout(() => newProjectDialog.close(), 200)}} class="absolute top-0 right-0 -translate-x-1 translate-y-1"><X class="text-zinc-50 size-4" /></button>
 	<form method="POST">
 		<div class="mb-7 flex flex-col gap-2">
-			<label class="text-lg font-medium tracking-tight">A short name to identify your project</label
+			<label for="name" class="text-lg font-medium tracking-tight">A short name to identify your project</label
 			>
 			<input
 				type="text"
+				id="name"
 				name="name"
 				required
 				placeholder="Project name"
@@ -130,14 +130,15 @@
 			/>
 		</div>
 		<div class="mb-5 flex flex-col gap-2">
-			<label class="text-lg font-medium tracking-tight"
+			<label for="description" class="text-lg font-medium tracking-tight"
 				>A clear, concise description of your project</label
 			>
 			<textarea
+				id="description"
 				name="description"
 				placeholder="Project description"
 				class="h-20 w-full rounded-md border-zinc-200 text-sm text-zinc-700 outline-none transition-all duration-200 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-300 dark:border-transparent dark:bg-zinc-100"
-			/>
+			></textarea>
 		</div>
 		<div class="flex justify-end">
 			<button
