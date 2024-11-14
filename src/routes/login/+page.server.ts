@@ -40,10 +40,10 @@ export const actions = {
 
             const { accessToken, refreshToken } = await createSession(userInDb[0].id, ip, userAgent)
 
-            const cookieOptions = { httpOnly: true, path: '/', sameSite: 'strict' as 'strict', expires: new Date(Date.now() + 5 * 60 * 1000) }
+            const cookieOptions = { httpOnly: true, path: '/', sameSite: 'strict' as 'strict', expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) }
 
             cookies.set('accessToken', accessToken, cookieOptions)
-            cookies.set('refreshToken', refreshToken, { ...cookieOptions, expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) })
+            cookies.set('refreshToken', refreshToken, cookieOptions)
 
         } catch (e) {
             console.log(e);
@@ -54,10 +54,10 @@ export const actions = {
     }
 } satisfies Actions;
 
-export const load: PageServerLoad = async ({ cookies }) => {
-    const accessToken = cookies.get('accessToken');
+export const load: PageServerLoad = async ({ locals }) => {
+    const user = locals.user;
 
-    if (accessToken) {
+    if (user) {
         redirect(303, '/projects');
     }
 }

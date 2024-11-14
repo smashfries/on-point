@@ -13,9 +13,9 @@ export const actions = {
         if (accessToken) {
             const secret = new TextEncoder().encode(env.SECRET)
             try {
-                const {payload} = await jwt.jwtVerify(accessToken, secret)
+                const { payload } = await jwt.jwtVerify(accessToken, secret)
                 if (payload) {
-                    await db.update(sessions).set({isActive: false}).where(eq(sessions.id, payload.sessionId as string))
+                    await db.update(sessions).set({ isActive: false }).where(eq(sessions.id, payload.sessionId as string))
                 }
             } catch (e) {
                 console.log(e)
