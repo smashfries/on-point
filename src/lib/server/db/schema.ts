@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, text, uuid, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, text, uuid, timestamp, boolean, integer } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
 	id: uuid('id').defaultRandom().primaryKey(),
@@ -11,7 +11,8 @@ export const users = pgTable('users', {
 });
 
 export const usersRelations = relations(users, ({many}) => ({
-	sessions: many(sessions)
+	sessions: many(sessions),
+	projects: many(projects)
 }))
 
 export const sessions = pgTable('sessions', {
@@ -31,5 +32,19 @@ export const sessions = pgTable('sessions', {
 })
 
 export const sessionsRelations = relations(sessions, ({one}) => ({
+	users: one(users)
+}))
+
+export const projects = pgTable('projects', {
+	id: uuid('id').defaultRandom().primaryKey(),
+	userId: uuid('id').notNull().references(() => users.id),
+	name: text('name').notNull(),
+	description: text('description').notNull(),
+	score: integer('score').notNull(),
+	updatedAt: timestamp('updated_at').defaultNow().notNull(),
+	createdAt: timestamp('created_at').defaultNow().notNull()
+})
+
+export const projectsRelations = relations(projects, ({one}) => ({
 	users: one(users)
 }))
