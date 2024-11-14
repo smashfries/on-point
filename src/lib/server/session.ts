@@ -33,7 +33,7 @@ export const createSession = async (userId: string, ip: string | null, userAgent
         })
             .setProtectedHeader({ alg: 'HS256' })
             .setIssuedAt()
-            .setExpirationTime('1 min')
+            .setExpirationTime('5 min')
             .sign(secret)
 
         return { accessToken, refreshToken }
