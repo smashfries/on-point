@@ -37,7 +37,7 @@ export const sessionsRelations = relations(sessions, ({one}) => ({
 
 export const projects = pgTable('projects', {
 	id: uuid('id').defaultRandom().primaryKey(),
-	userId: uuid('id').notNull().references(() => users.id),
+	userId: uuid('user_id').notNull().references(() => users.id),
 	name: text('name').notNull(),
 	description: text('description').notNull(),
 	score: integer('score').notNull(),

@@ -1,10 +1,9 @@
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = ({cookies}) => {
-    const accessToken = cookies.get('accessToken')
-    console.log(accessToken)
+export const load: PageServerLoad = ({locals}) => {
+    const user = locals.user;
 
     return {
-        loggedIn: accessToken ? true : false
+        loggedIn: user ? true : false
     }
 }
