@@ -176,12 +176,12 @@
 								selectedTaskId = '';
 							}}
 							class="flex h-full w-full items-center justify-center rounded-full {task.completed
-								? 'dark:bg-zinc-300'
+								? 'dark:bg-zinc-300 bg-zinc-500'
 								: 'border border-zinc-300 dark:border-zinc-500'}"
 						>
 							<Check
 								class="h-full w-full p-0.5 transition duration-200 {task.completed
-									? 'dark:text-zinc-700'
+									? 'dark:text-zinc-700 text-zinc-50'
 									: 'text-transparent hover:text-zinc-300'}"
 							/>
 						</div>
