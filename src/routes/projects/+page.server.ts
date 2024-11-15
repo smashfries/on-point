@@ -28,7 +28,7 @@ export const actions = {
                 userId: user
             }).returning()
 
-            return redirect(303, '/projects')
+            return {success: true, project: project[0]}
         } catch (e) {
             console.log(e)
             return fail(500, { error: 'server-error', errorPath: null, errorMessage: 'DB query failed' })

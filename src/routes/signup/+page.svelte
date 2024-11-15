@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
     import type { PageData, ActionData } from './$types';
 
     let {data, form}: {data: PageData, form: ActionData} = $props();
@@ -7,7 +8,7 @@
 <div class="text-center mt-10">
     <a href="/" class="tracking-tighter italic text-zinc-400 font-medium">on point</a>
 </div>
-<form method="POST" class="w-96 mx-auto mt-3 rounded-md shadow-lg dark:bg-zinc-700 dark:text-zinc-50 p-5">
+<form method="POST" use:enhance class="w-96 mx-auto mt-3 rounded-md shadow-lg dark:bg-zinc-700 dark:text-zinc-50 p-5">
     <h1 class="text-2xl font-medium tracking-tight">Sign up</h1>
 
     <div class="mt-5 flex flex-col gap-2">

@@ -1,49 +1,28 @@
 <script lang="ts">
-	import type { PageData } from './$types';
-	import LogOut from 'lucide-svelte/icons/log-out';
+	import type { PageData, ActionData } from './$types';
 	import Plus from 'lucide-svelte/icons/plus';
 	import X from 'lucide-svelte/icons/x';
-	import { computePosition, shift, offset, autoUpdate } from '@floating-ui/dom';
+	import Logout from '$lib/ui/components/logout/index.svelte';
+	import { applyAction, enhance } from '$app/forms';
+	import { invalidate } from '$app/navigation';
 
-	let { data }: { data: PageData } = $props();
+	let { data, form }: { data: PageData, form: ActionData } = $props();
 
-	let logoutButton: HTMLButtonElement;
-	let logoutButtonTooltip: HTMLDivElement;
-	let showLogoutButtonTooltip = $state(false);
 
 	let newProjectDialog: HTMLDialogElement;
 	let newProjectDialogOpen = $state(false);
 
-	let cleanup: any;
-
-	function updateTooltipPosition() {
-		computePosition(logoutButton, logoutButtonTooltip, {
-			middleware: [shift(), offset(7)]
-		}).then(({ x, y }) => {
-			Object.assign(logoutButtonTooltip.style, {
-				left: `${x}px`,
-				top: `${y}px`
-			});
-		});
-	}
-
-	function onLogoutButtonHover() {
-		if (cleanup) return;
-		logoutButtonTooltip.style.display = 'block';
-		cleanup = autoUpdate(logoutButton, logoutButtonTooltip, updateTooltipPosition);
-		showLogoutButtonTooltip = true;
-	}
-
-	function onLogoutButtonExit() {
-		if (cleanup) {
-			setTimeout(() => {
-				logoutButtonTooltip.style.display = '';
-			}, 200);
-			cleanup();
-			cleanup = null;
-			showLogoutButtonTooltip = false;
+	$effect(() => {
+		if (form?.success) {
+			closeNewProjectDialog()
 		}
+	})
+
+	function closeNewProjectDialog() {
+ 		newProjectDialogOpen = false;
+		setTimeout(() => newProjectDialog.close(), 200)
 	}
+
 </script>
 
 <div class="mx-auto mt-5 max-w-7xl px-6">
@@ -57,28 +36,7 @@
 				><Plus class="bg-zinc-700 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-700 rounded-full p-1 size-8" /></button 
 			>
 		</h1>
-		<form method="POST" action="/logout">
-			<button
-				type="submit"
-				aria-label="Log out"
-				onmouseenter={onLogoutButtonHover}
-				onfocus={onLogoutButtonHover}
-				onmouseleave={onLogoutButtonExit}
-				onblur={onLogoutButtonExit}
-				bind:this={logoutButton}
-				aria-describedby="logout-tooltip"><LogOut class="size-5 dark:text-zinc-50" /></button
-			>
-		</form>
-		<div
-			bind:this={logoutButtonTooltip}
-			id="logout-tooltip"
-			role="tooltip"
-			class="absolute left-0 top-0 hidden w-fit rounded-md bg-zinc-700 p-1 px-2 text-xs text-zinc-50 shadow-md transition duration-200 dark:bg-zinc-700 dark:text-zinc-50 {showLogoutButtonTooltip
-				? 'opacity-1 translate-y-0'
-				: 'translate-y-2 opacity-0'}"
-		>
-			Log out
-		</div>
+		<Logout />
 	</div>
 
 	<div class="mt-10 flex flex-wrap gap-5">
@@ -89,8 +47,8 @@
 			>
 				<div class="flex h-full w-1 rounded-md bg-red-100"></div>
 				<div>
-					<h2 class="text-lg font-medium tracking-tight">Trelae</h2>
-					<p class="text-sm text-gray-600 dark:text-zinc-200">Better business software</p>
+					<h2 class="text-lg font-medium tracking-tight">{project.name}</h2>
+					<p class="text-sm text-gray-600 dark:text-zinc-200">{project.description}</p>
 				</div>
 			</a>
 		{/each}
@@ -102,7 +60,7 @@
 	class="w-96 rounded-md p-5 text-zinc-800 shadow-md dark:bg-zinc-700 dark:text-zinc-50 {newProjectDialogOpen
 		? 'visible'
 		: ''}"
-	oncancel={(e) => {e.preventDefault(); newProjectDialogOpen = false; setTimeout(() => newProjectDialog.close(), 200)}}
+	oncancel={(e) => {e.preventDefault(); closeNewProjectDialog()}}
 	onclick={(e) => {
 		const dialogDimensions = newProjectDialog.getBoundingClientRect();
 		if (e.clientX < dialogDimensions.left ||
@@ -110,13 +68,12 @@
 			e.clientY < dialogDimensions.top ||
 			e.clientY > dialogDimensions.bottom
 		) {
-			newProjectDialogOpen = false;
-			setTimeout(() => newProjectDialog.close(), 200)
+			closeNewProjectDialog()
 		}
 	}}
 >
-	<button onclick={() => {newProjectDialogOpen = false; setTimeout(() => newProjectDialog.close(), 200)}} class="absolute top-0 right-0 -translate-x-1 translate-y-1"><X class="text-zinc-50 size-4" /></button>
-	<form method="POST">
+	<button onclick={closeNewProjectDialog} class="absolute top-0 right-0 -translate-x-1 translate-y-1"><X class="text-zinc-50 size-4" /></button>
+	<form method="POST" use:enhance>
 		<div class="mb-7 flex flex-col gap-2">
 			<label for="name" class="text-lg font-medium tracking-tight">A short name to identify your project</label
 			>
@@ -168,8 +125,8 @@
 		background: transparent;
 		opacity: 0;
 		transition: opacity 0.2s ease;
-		backdrop-filter: blur(5px);
-		-webkit-backdrop-filter: blur(5px);
+		backdrop-filter: blur(10px);
+		-webkit-backdrop-filter: blur(10px);
 	}
 
 	dialog.visible::backdrop {
