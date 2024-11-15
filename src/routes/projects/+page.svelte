@@ -3,8 +3,7 @@
 	import Plus from 'lucide-svelte/icons/plus';
 	import X from 'lucide-svelte/icons/x';
 	import Logout from '$lib/ui/components/logout/index.svelte';
-	import { applyAction, enhance } from '$app/forms';
-	import { invalidate } from '$app/navigation';
+	import { enhance } from '$app/forms';
 
 	let { data, form }: { data: PageData, form: ActionData } = $props();
 
@@ -72,7 +71,7 @@
 		}
 	}}
 >
-	<button onclick={closeNewProjectDialog} class="absolute top-0 right-0 -translate-x-1 translate-y-1"><X class="text-zinc-50 size-4" /></button>
+	<button onclick={closeNewProjectDialog} class="absolute top-0 right-0 -translate-x-1 translate-y-1"><X class="dark:text-zinc-50 size-4" /></button>
 	<form method="POST" use:enhance>
 		<div class="mb-7 flex flex-col gap-2">
 			<label for="name" class="text-lg font-medium tracking-tight">A short name to identify your project</label
@@ -125,8 +124,8 @@
 		background: transparent;
 		opacity: 0;
 		transition: opacity 0.2s ease;
-		backdrop-filter: blur(10px);
-		-webkit-backdrop-filter: blur(10px);
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
 	}
 
 	dialog.visible::backdrop {
