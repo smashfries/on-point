@@ -54,7 +54,7 @@
 					newProjectDialog.showModal();
 					setTimeout(() => (newProjectDialogOpen = true)), 10;
 				}}
-				><Plus class="bg-zinc-700 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-700 rounded-full p-2 size-9" /></button 
+				><Plus class="bg-zinc-700 dark:bg-zinc-50 text-zinc-50 dark:text-zinc-700 rounded-full p-1 size-8" /></button 
 			>
 		</h1>
 		<form method="POST" action="/logout">

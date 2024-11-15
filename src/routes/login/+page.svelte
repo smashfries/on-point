@@ -15,7 +15,7 @@
         <input required name="password" type="password" class="w-full h-10 border-zinc-200 dark:border-transparent outline-none dark:bg-zinc-100 rounded-md text-zinc-700 focus:ring-2 focus:ring-zinc-300 focus:border-zinc-400 transition-all duration-200 text-sm" placeholder="Password">
     </div>
     <div class="mt-5">
-        <input type="submit" value="Login" class="w-full text-blue-50 bg-blue-500 h-10 text-sm rounded-md active:ring-2 active:ring-blue-300 transition-all duration-200">
+        <button type="submit" class="w-full text-blue-50 bg-blue-500 h-10 text-sm rounded-md active:ring-2 active:ring-blue-300 transition-all duration-200">Login</button>
     </div>
 
     <div class="text-center mt-10 text-xs dark:text-zinc-300 text-zinc-600">

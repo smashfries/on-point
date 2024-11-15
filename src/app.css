@@ -11,9 +11,17 @@ html, body {
     height: 100%;
 }
 
-:root {
+* {
     font-family: 'Inter', sans-serif;
     font-optical-sizing: auto;
     user-select: none;
     cursor: default;
+}
+
+button, a {
+    cursor: default;
+}
+
+input, textarea {
+    cursor:text;
 }
