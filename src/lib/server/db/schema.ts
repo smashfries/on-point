@@ -12,7 +12,8 @@ export const users = pgTable('users', {
 
 export const usersRelations = relations(users, ({many}) => ({
 	sessions: many(sessions),
-	projects: many(projects)
+	projects: many(projects),
+	tasks: many(tasks)
 }))
 
 export const sessions = pgTable('sessions', {
@@ -45,8 +46,9 @@ export const projects = pgTable('projects', {
 	createdAt: timestamp('created_at').defaultNow().notNull()
 })
 
-export const projectsRelations = relations(projects, ({one}) => ({
-	users: one(users)
+export const projectsRelations = relations(projects, ({one, many}) => ({
+	users: one(users),
+	tasks: many(tasks)
 }))
 
 export const tasks = pgTable('tasks', {
@@ -59,3 +61,8 @@ export const tasks = pgTable('tasks', {
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
 	createdAt: timestamp('created_at').notNull().defaultNow()
 })
+
+export const tasksRelations = relations(tasks, ({one}) => ({
+	users: one(users),
+	projects: one(projects)
+}))
