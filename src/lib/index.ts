@@ -53,7 +53,7 @@ export async function getSessionInfo(userAgent: string | null, ip: string | null
     let ipInfo;
     if (ip) {
         try {
-            ipInfo = await (await fetch(`ipinfo.io/${ip}?token=${env.IPINFO_TOKEN}`)).json()
+            ipInfo = await (await fetch(`https://ipinfo.io/${ip}?token=${env.IPINFO_TOKEN}`)).json()
         } catch (e) {
             console.log(e)
         }
