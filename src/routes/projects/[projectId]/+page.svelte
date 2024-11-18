@@ -128,6 +128,29 @@
 		taskDialogOpen = false;
 		setTimeout(() => taskDialog.close(), 200)
 	}
+
+	let deletingTask = false;
+	async function deleteTask() {
+		if (deletingTask) return;
+
+		deletingTask = true;
+		let res;
+		try {
+			res = await fetch(`/projects/${data.project.id}/tasks/${selectedTaskId}`, {
+				method: 'DELETE'
+			})
+
+			if (res.ok) {
+				closeTaskDialog()
+
+				tasks = tasks.filter((task) => task.id !== selectedTaskId)
+				selectedTaskId = '';
+				deletingTask = false;
+			}
+		} catch (e) {
+			console.log(e);
+		}
+	}
 </script>
 
 <div class="mx-auto mt-5 max-w-7xl px-10">
@@ -236,14 +259,14 @@
 	oncancel={(e) => {e.preventDefault(); closeTaskDialog()}}
 >
 	<button onclick={(e) => {e.preventDefault(); closeTaskDialog()}} class="absolute top-0 right-0 -translate-x-1 translate-y-1"><X class="dark:text-zinc-50 size-4" /></button>
-	<h1 contenteditable="plaintext-only" class="outline-none cursor-text font-medium text-lg tracking-tight">{data.tasks.find((task) => task.id === selectedTaskId)?.title}</h1>
+	<h1 contenteditable="plaintext-only" class="outline-none cursor-text font-medium text-lg tracking-tight">{tasks.find((task) => task.id === selectedTaskId)?.title}</h1>
 
 	<div class="mt-5 flex justify-between items-center">
 		<div>
 			<button class="border-0.5 font-light border-blue-900/50 bg-blue-500 shadow-sm text-blue-50 p-1 rounded-md flex items-center gap-2 text-xs"><Play strokeWidth="1.5" class="size-4" /> Start working</button>
 		</div>
 		<div>
-			<button class="border-0.5 font-light border-red-900/50 dark:bg-red-950/30 bg-red-500/10 shadow-sm text-red-700 p-1 rounded-md flex items-center gap-2 text-xs"><Trash strokeWidth="1.5" class="size-4" /> Delete</button>
+			<button onclick={deleteTask} class="border-0.5 font-light border-red-900/50 dark:bg-red-950/30 bg-red-500/10 shadow-sm text-red-700 dark:text-red-100/90 p-1 rounded-md flex items-center gap-2 text-xs"><Trash strokeWidth="1.5" class="size-4" /> Delete</button>
 		</div>
 	</div>
 </dialog>

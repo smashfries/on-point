@@ -1,7 +1,7 @@
 import { error, json } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 import { db } from "$lib/server/db";
-import { projects, tasks } from "$lib/server/db/schema";
+import { tasks } from "$lib/server/db/schema";
 import { eq } from "drizzle-orm";
 
 export const PATCH: RequestHandler = async ({request, locals, params}) => {
@@ -12,13 +12,13 @@ export const PATCH: RequestHandler = async ({request, locals, params}) => {
         error(400, 'unauthorized')
     }
 
-    const project = await db.select({userId: projects.userId}).from(projects).where(eq(projects.id, params.projectId))
+    const task = await db.select({userId: tasks.userId}).from(tasks).where(eq(tasks.id, params.taskId))
 
-    if (project.length === 0) {
+    if (task.length === 0) {
         error(400, 'project-not-found')
     }
 
-    if (project[0].userId !== user) {
+    if (task[0].userId !== user) {
         error(400, 'unauthorized')
     }
 
@@ -50,4 +50,35 @@ export const PATCH: RequestHandler = async ({request, locals, params}) => {
     return json({
         success: true
     })
+}
+
+export const DELETE: RequestHandler = async ({locals, params}) => {
+    const user = locals.user
+
+    if (!user) {
+        error(400, 'unauthorized')
+    }
+
+    const task = await db.select({userId: tasks.userId}).from(tasks).where(eq(tasks.id, params.taskId))
+
+    if (task.length === 0) {
+        error(400, 'project-not-found')
+    }
+
+    if (task[0].userId !== user) {
+        error(400, 'unauthorized')
+    }
+
+    try {
+        await db.delete(tasks).where(eq(tasks.id, params.taskId))
+    } catch (e) {
+        console.log(e)
+
+        error(500, 'db-error');
+    }
+
+    return json({
+        success: true
+    })
+
 }
