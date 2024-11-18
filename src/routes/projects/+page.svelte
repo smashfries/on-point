@@ -24,7 +24,7 @@
 
 </script>
 
-<div class="mx-auto mt-5 max-w-7xl px-6">
+<div class="mx-auto mt-5 max-w-7xl px-10">
 	<div class="flex items-center justify-between">
 		<h1 class="flex items-center gap-4 text-3xl font-medium tracking-tight dark:text-zinc-50">
 			Projects <button
@@ -42,7 +42,7 @@
 		{#each data.projects as project (project.id)}
 			<a
 				href={`/projects/${project.id}`}
-				class="flex h-24 w-72 items-stretch gap-2 rounded-md border bg-slate-50 p-1 shadow-sm dark:border-transparent dark:bg-zinc-700 dark:text-zinc-50"
+				class="flex h-24 w-64 items-stretch gap-2 rounded-md border bg-slate-50 p-1 shadow-sm dark:border-transparent dark:bg-zinc-700 dark:text-zinc-50"
 			>
 				<div class="flex h-full w-1 rounded-md bg-red-100"></div>
 				<div>

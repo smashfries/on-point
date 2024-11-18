@@ -1,7 +1,10 @@
 <script lang="ts">
 	import Logout from '$lib/ui/components/logout/index.svelte';
 	import ChevronLeft from 'lucide-svelte/icons/chevron-left';
+	import X from 'lucide-svelte/icons/x';
 	import Check from 'lucide-svelte/icons/check';
+	import Trash from 'lucide-svelte/icons/trash';
+	import Play from 'lucide-svelte/icons/play';
 	import type { PageData } from './$types';
 	import { flip } from 'svelte/animate';
 
@@ -11,6 +14,9 @@
 	let tasks = $state(data.tasks);
 
 	let selectedTaskId = $state('');
+
+	let taskDialog: HTMLDialogElement;
+	let taskDialogOpen = $state(false);
 
 	async function createTask() {
 		if (newTaskName === '') return;
@@ -54,7 +60,10 @@
 		}
 	}
 
-	function toggleTaskCompletionStatus() {
+	function toggleTaskCompletionStatus(e: any = null) {
+		if (e) {
+			e.stopPropagation();
+		}
 		const id = selectedTaskId;
 		const taskIndex = tasks.findIndex((task) => task.id === id);
 		tasks[taskIndex].completed = !tasks[taskIndex].completed;
@@ -98,9 +107,30 @@
             }
 		}
 	}
+
+	function selectTask(id: string) {
+		if (taskDialogOpen) return;
+
+		selectedTaskId = id;
+	}
+
+	function openTaskDialog(id: string) {
+		console.log(id)
+		taskDialog.showModal();
+
+		setTimeout(() => {
+			taskDialogOpen = true;
+			selectedTaskId = id;
+		}, 10)
+	}
+
+	function closeTaskDialog() {
+		taskDialogOpen = false;
+		setTimeout(() => taskDialog.close(), 200)
+	}
 </script>
 
-<div class="mx-auto mt-5 max-w-7xl px-6">
+<div class="mx-auto mt-5 max-w-7xl px-10">
 	<a href="/projects" class="absolute -translate-x-10"
 		><ChevronLeft class="size-10 pb-0.5 dark:text-zinc-50" /></a
 	>
@@ -140,23 +170,23 @@
 				class="mb-6 h-9 w-full rounded-md border-zinc-200 bg-white text-sm text-zinc-800 outline-none transition-all duration-200 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-300 dark:border-transparent"
 			/>
 			{#each tasks as task (task.id)}
-				<div
+				<button
 					animate:flip
-					role="button"
-					tabindex="0"
 					onmouseenter={() => {
-						selectedTaskId = task.id;
+						selectTask(task.id)
 					}}
 					onfocus={() => {
-						selectedTaskId = task.id;
+						selectTask(task.id)
 					}}
 					onmouseleave={() => {
-						selectedTaskId = '';
+						selectTask('')
 					}}
 					onblur={() => {
-						selectedTaskId = '';
+						selectTask('')
 					}}
 					class="flex h-9 w-full cursor-default items-center rounded-md bg-white px-4 pl-8 text-sm text-zinc-800 dark:bg-zinc-700 dark:text-zinc-200"
+					onclick={() => openTaskDialog(task.id)}
+					onkeydown={(e) => e.key === 'Enter' && openTaskDialog(task.id)}
 				>
 					<div
 						class="absolute {selectedTaskId === task.id || task.completed
@@ -189,7 +219,7 @@
 					<span class="truncate">
 						{task.title}
 					</span>
-				</div>
+				</button>
 			{/each}
 
 			{#if tasks.length === 0}
@@ -200,3 +230,48 @@
 		</div>
 	</div>
 </div>
+
+<dialog bind:this={taskDialog}
+	class="w-full max-w-3xl rounded-md p-5 text-zinc-800 shadow-md dark:bg-zinc-700 dark:text-zinc-50 {taskDialogOpen ? 'visible' : ''}"
+	oncancel={(e) => {e.preventDefault(); closeTaskDialog()}}
+>
+	<button onclick={(e) => {e.preventDefault(); closeTaskDialog()}} class="absolute top-0 right-0 -translate-x-1 translate-y-1"><X class="dark:text-zinc-50 size-4" /></button>
+	<h1 contenteditable="plaintext-only" class="outline-none cursor-text font-medium text-lg tracking-tight">{data.tasks.find((task) => task.id === selectedTaskId)?.title}</h1>
+
+	<div class="mt-5 flex justify-between items-center">
+		<div>
+			<button class="border-0.5 font-light border-blue-900/50 bg-blue-500 shadow-sm text-blue-50 p-1 rounded-md flex items-center gap-2 text-xs"><Play strokeWidth="1.5" class="size-4" /> Start working</button>
+		</div>
+		<div>
+			<button class="border-0.5 font-light border-red-900/50 dark:bg-red-950/30 bg-red-500/10 shadow-sm text-red-700 p-1 rounded-md flex items-center gap-2 text-xs"><Trash strokeWidth="1.5" class="size-4" /> Delete</button>
+		</div>
+	</div>
+</dialog>
+
+<style>
+	dialog {
+		opacity: 0;
+		transform: translateY(10px);
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
+	}
+
+	dialog.visible {
+		opacity: 1;
+		transform: translateY(0);
+	}
+
+	dialog::backdrop {
+		background: transparent;
+		opacity: 0;
+		transition: opacity 0.2s ease;
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+	}
+
+	dialog.visible::backdrop {
+		opacity: 1;
+	}
+</style>
+
