@@ -10,11 +10,27 @@
 	import type { PageData } from './$types';
 	import { flip } from 'svelte/animate';
 	import { goto } from '$app/navigation';
+	import { tick } from 'svelte';
 
 	let { data }: { data: PageData } = $props();
 
 	let newTaskName: string = $state('');
-	let tasks = $state(data.tasks);
+
+	type Task = {
+		id: string;
+		title: string;
+		completed: boolean;
+		el: HTMLButtonElement | null;
+	};
+
+	let tasks: Task[] = $state(
+		data.tasks.map((task) => {
+			return {
+				...task,
+				el: null
+			};
+		})
+	);
 
 	let selectedTaskId = $state('');
 
@@ -33,7 +49,8 @@
 		tasks.push({
 			id,
 			title,
-			completed: false
+			completed: false,
+			el: null
 		});
 
 		newTaskName = '';
@@ -88,29 +105,29 @@
 	}
 
 	async function removeCompletedTask(id: string) {
-        const task = tasks.find((task) => task.id === id);
+		const task = tasks.find((task) => task.id === id);
 		if (task?.completed) {
-            tasks = tasks.filter((task) => task.id !== id)
+			tasks = tasks.filter((task) => task.id !== id);
 
-            try {
-                const res = await fetch(`/projects/${data.project.id}/tasks/${id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        completed: true
-                    })
-                })
+			try {
+				const res = await fetch(`/projects/${data.project.id}/tasks/${id}`, {
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						completed: true
+					})
+				});
 
-                if (!res.ok) {
-                    tasks.push({...task, completed: false})
-                }
-            } catch (e) {
-                console.log(e)
+				if (!res.ok) {
+					tasks.push({ ...task, completed: false });
+				}
+			} catch (e) {
+				console.log(e);
 
-                tasks.push({...task, completed: false})
-            }
+				tasks.push({ ...task, completed: false });
+			}
 		}
 	}
 
@@ -121,18 +138,18 @@
 	}
 
 	function openTaskDialog(id: string) {
-		console.log(id)
+		console.log(id);
 		taskDialog.showModal();
 
 		setTimeout(() => {
 			taskDialogOpen = true;
 			selectedTaskId = id;
-		}, 10)
+		}, 10);
 	}
 
 	function closeTaskDialog() {
 		taskDialogOpen = false;
-		setTimeout(() => taskDialog.close(), 200)
+		setTimeout(() => taskDialog.close(), 200);
 	}
 
 	function openDeleteProjectDialog() {
@@ -140,12 +157,12 @@
 
 		setTimeout(() => {
 			deleteProjectDialogOpen = true;
-		}, 10)
+		}, 10);
 	}
 
 	function closeDeleteProjectDialog() {
 		deleteProjectDialogOpen = false;
-		setTimeout(() => deleteProjectDialog.close(), 200)
+		setTimeout(() => deleteProjectDialog.close(), 200);
 	}
 
 	let deletingTask = false;
@@ -157,12 +174,12 @@
 		try {
 			res = await fetch(`/projects/${data.project.id}/tasks/${selectedTaskId}`, {
 				method: 'DELETE'
-			})
+			});
 
 			if (res.ok) {
-				closeTaskDialog()
+				closeTaskDialog();
 
-				tasks = tasks.filter((task) => task.id !== selectedTaskId)
+				tasks = tasks.filter((task) => task.id !== selectedTaskId);
 				selectedTaskId = '';
 				deletingTask = false;
 			}
@@ -180,20 +197,22 @@
 		try {
 			res = await fetch(`/projects/${data.project.id}`, {
 				method: 'DELETE'
-			})
+			});
 
 			if (res.ok) {
-				goto('/projects')
+				goto('/projects');
 			}
 		} catch (e) {
-			console.log(e)
+			console.log(e);
 		}
-		
 	}
+
+	let draggedTask = null;
+	let dragPosition = $state(-1);
 </script>
 
 <svelte:head>
-	<title>{data.project.name} | on point</title>
+	<title>{data.project.name}</title>
 </svelte:head>
 
 <div class="mx-auto mt-5 max-w-7xl px-10">
@@ -219,13 +238,23 @@
 				{data.project.description}
 			</div>
 
-			<div class="mt-10 mb-5 flex items-center gap-8">
+			<div class="mb-5 mt-10 flex items-center gap-8">
 				<div class="flex items-center gap-2">
-					<button class="text-xs font-light flex items-center rounded-md p-1 px-2 gap-1 bg-zinc-200 text-zinc-950"><Flame strokeWidth="1.5" class="size-4" /> Stats</button>
-					<button class="text-xs font-light flex items-center rounded-md p-1 px-2 gap-1 bg-green-300 text-green-950"><Archive strokeWidth="1.5" class="size-4" /> Archive</button>
+					<button
+						class="flex items-center gap-1 rounded-md bg-zinc-200 p-1 px-2 text-xs font-light text-zinc-950"
+						><Flame strokeWidth="1.5" class="size-4" /> Stats</button
+					>
+					<button
+						class="flex items-center gap-1 rounded-md bg-green-300 p-1 px-2 text-xs font-light text-green-950"
+						><Archive strokeWidth="1.5" class="size-4" /> Archive</button
+					>
 				</div>
 				<div>
-					<button onclick={openDeleteProjectDialog} class="text-xs font-light flex items-center rounded-md p-1 px-2 gap-1 bg-red-300 text-red-950"><Trash strokeWidth="1.5" class="size-4" /> Delete</button>
+					<button
+						onclick={openDeleteProjectDialog}
+						class="flex items-center gap-1 rounded-md bg-red-300 p-1 px-2 text-xs font-light text-red-950"
+						><Trash strokeWidth="1.5" class="size-4" /> Delete</button
+					>
 				</div>
 			</div>
 			<div
@@ -244,58 +273,106 @@
 				placeholder="Add a task..."
 				class="mb-6 h-9 w-full rounded-md border-zinc-200 bg-white text-sm text-zinc-800 outline-none transition-all duration-200 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-300 dark:border-transparent"
 			/>
-			{#each tasks as task (task.id)}
-				<button
-					animate:flip
-					onmouseenter={() => {
-						selectTask(task.id)
-					}}
-					onfocus={() => {
-						selectTask(task.id)
-					}}
-					onmouseleave={() => {
-						selectTask('')
-					}}
-					onblur={() => {
-						selectTask('')
-					}}
-					class="flex h-9 w-full cursor-default items-center rounded-md bg-white px-4 pl-8 text-sm text-zinc-800 dark:bg-zinc-700 dark:text-zinc-200"
-					onclick={() => openTaskDialog(task.id)}
-					onkeydown={(e) => e.key === 'Enter' && openTaskDialog(task.id)}
-				>
+			<div>
+				<div
+					class="relative mb-1 h-1 w-full {dragPosition === 0
+						? 'bg-blue-500'
+						: 'bg-transparent'} rounded-md transition-colors duration-200"
+				></div>
+				{#each tasks as task, index (task.id)}
 					<div
-						class="absolute {selectedTaskId === task.id || task.completed
-							? 'opacity-1'
-							: 'opacity-0'} size-4 translate-x-[-23px] transition-opacity duration-0"
+						animate:flip={{ delay: 0, duration: 200 }}
+						class="flex flex-col gap-1 py-0"
+						role="presentation"
+						ondragenter={(e) => {
+							dragPosition = index;
+						}}
+						ondragover={(e) => e.preventDefault()}
 					>
-						<div
-							tabindex="0"
-							role="checkbox"
-							aria-checked="false"
-							onclick={toggleTaskCompletionStatus}
-							onkeydown={completeTaskKeyDown}
+						<button
+							draggable="true"
+							ondragstart={(e) => {
+								draggedTask = task;
+							}}
+							ondragend={(e) => {
+								console.log('dragend')
+								if (task.el) {
+									const img = new Image();
+									e.dataTransfer?.setDragImage(img, 0, 0);
+								}
+								const fromIndex = tasks.indexOf(task);
+								tasks.splice(fromIndex, 1);
+								tasks.splice(fromIndex < dragPosition ? dragPosition - 1 : dragPosition, 0, task);
+
+								draggedTask = null;
+								dragPosition = -1;
+							}}
+							bind:this={task.el}
+							onmouseenter={() => {
+								selectTask(task.id);
+							}}
 							onfocus={() => {
-								selectedTaskId = task.id;
+								selectTask(task.id);
+							}}
+							onmouseleave={() => {
+								selectTask('');
 							}}
 							onblur={() => {
-								selectedTaskId = '';
+								selectTask('');
 							}}
-							class="flex h-full w-full items-center justify-center rounded-full {task.completed
-								? 'dark:bg-zinc-300 bg-zinc-500'
-								: 'border border-zinc-300 dark:border-zinc-500'}"
+							class="flex h-9 w-full cursor-default items-center rounded-md bg-white px-4 pl-8 text-sm text-zinc-800 dark:bg-zinc-700 dark:text-zinc-200"
+							onclick={() => openTaskDialog(task.id)}
+							onkeydown={(e) => e.key === 'Enter' && openTaskDialog(task.id)}
 						>
-							<Check
-								class="h-full w-full p-0.5 transition duration-200 {task.completed
-									? 'dark:text-zinc-700 text-zinc-50'
-									: 'text-transparent hover:text-zinc-300'}"
-							/>
-						</div>
+							<div
+								class="absolute {selectedTaskId === task.id || task.completed
+									? 'opacity-1'
+									: 'opacity-0'} size-4 translate-x-[-23px] transition-opacity duration-0"
+							>
+								<div
+									tabindex="0"
+									role="checkbox"
+									aria-checked="false"
+									onclick={toggleTaskCompletionStatus}
+									onkeydown={completeTaskKeyDown}
+									onfocus={() => {
+										selectedTaskId = task.id;
+									}}
+									onblur={() => {
+										selectedTaskId = '';
+									}}
+									class="flex h-full w-full items-center justify-center rounded-full {task.completed
+										? 'bg-zinc-500 dark:bg-zinc-300'
+										: 'border border-zinc-300 dark:border-zinc-500'}"
+								>
+									<Check
+										class="h-full w-full p-0.5 transition duration-200 {task.completed
+											? 'text-zinc-50 dark:text-zinc-700'
+											: 'text-transparent hover:text-zinc-300'}"
+									/>
+								</div>
+							</div>
+							<span class="truncate">
+								{task.title}
+							</span>
+						</button>
+						<div
+							class="relative mb-1 h-1 w-full {dragPosition === index + 1
+								? 'bg-blue-500'
+								: 'bg-transparent'} rounded-md transition-colors duration-200"
+						></div>
 					</div>
-					<span class="truncate">
-						{task.title}
-					</span>
-				</button>
-			{/each}
+				{/each}
+				<div
+					class="h-20 w-full"
+					role="presentation"
+					ondragenter={(e) => {
+						console.log('entered final drag zone');
+						dragPosition = tasks.length;
+					}}
+					ondragover={(e) => e.preventDefault()}
+				></div>
+			</div>
 
 			{#if tasks.length === 0}
 				<p class="text-center text-sm text-zinc-600 dark:text-zinc-300">
@@ -306,32 +383,70 @@
 	</div>
 </div>
 
-<dialog bind:this={deleteProjectDialog}
-	class="w-96 rounded-md p-5 text-zinc-800 shadow-md dark:bg-zinc-700 dark:text-zinc-300 {deleteProjectDialogOpen ? 'visible' : ''}"
-	oncancel={(e) => {e.preventDefault(); closeDeleteProjectDialog()}}
+<dialog
+	bind:this={deleteProjectDialog}
+	class="w-96 rounded-md p-5 text-zinc-800 shadow-md dark:bg-zinc-700 dark:text-zinc-300 {deleteProjectDialogOpen
+		? 'visible'
+		: ''}"
+	oncancel={(e) => {
+		e.preventDefault();
+		closeDeleteProjectDialog();
+	}}
 >
-	<h1 class="font-medium text-lg tracking-tight mb-5">Are you sure you want to delete this project?</h1>
+	<h1 class="mb-5 text-lg font-medium tracking-tight">
+		Are you sure you want to delete this project?
+	</h1>
 	<p class="text-sm">You will permanently lose all data related to this project and its tasks.</p>
 
-	<div class="mt-10 flex justify-end items-center gap-2">
-		<button class="text-sm p-2 rounded-md px-4 bg-zinc-300 text-zinc-950" onclick={closeDeleteProjectDialog}>Cancel</button>
-		<button class="text-sm p-2 rounded-md px-4 bg-red-300 text-red-950" onclick={deleteProject}>Delete</button>
+	<div class="mt-10 flex items-center justify-end gap-2">
+		<button
+			class="rounded-md bg-zinc-300 p-2 px-4 text-sm text-zinc-950"
+			onclick={closeDeleteProjectDialog}>Cancel</button
+		>
+		<button class="rounded-md bg-red-300 p-2 px-4 text-sm text-red-950" onclick={deleteProject}
+			>Delete</button
+		>
 	</div>
 </dialog>
 
-<dialog bind:this={taskDialog}
-	class="w-full max-w-3xl rounded-md p-5 text-zinc-800 shadow-md dark:bg-zinc-700 dark:text-zinc-50 {taskDialogOpen ? 'visible' : ''}"
-	oncancel={(e) => {e.preventDefault(); closeTaskDialog()}}
+<dialog
+	bind:this={taskDialog}
+	class="w-full max-w-3xl rounded-md p-5 text-zinc-800 shadow-md dark:bg-zinc-700 dark:text-zinc-50 {taskDialogOpen
+		? 'visible'
+		: ''}"
+	oncancel={(e) => {
+		e.preventDefault();
+		closeTaskDialog();
+	}}
 >
-	<button onclick={(e) => {e.preventDefault(); closeTaskDialog()}} class="absolute top-0 right-0 -translate-x-1 translate-y-1"><X class="dark:text-zinc-50 size-4" /></button>
-	<h1 contenteditable="plaintext-only" class="outline-none cursor-text font-medium text-lg tracking-tight">{tasks.find((task) => task.id === selectedTaskId)?.title}</h1>
+	<button
+		onclick={(e) => {
+			e.preventDefault();
+			closeTaskDialog();
+		}}
+		class="absolute right-0 top-0 -translate-x-1 translate-y-1"
+		><X class="size-4 dark:text-zinc-50" /></button
+	>
+	<h1
+		contenteditable="plaintext-only"
+		class="cursor-text text-lg font-medium tracking-tight outline-none"
+	>
+		{tasks.find((task) => task.id === selectedTaskId)?.title}
+	</h1>
 
-	<div class="mt-5 flex justify-between items-center">
+	<div class="mt-5 flex items-center justify-between">
 		<div>
-			<button class="border-0.5 font-light border-blue-900/50 bg-blue-300 shadow-sm text-blue-950 p-1 rounded-md flex items-center gap-2 text-xs"><Play strokeWidth="1.5" class="size-4" /> Start working</button>
+			<button
+				class="border-0.5 flex items-center gap-2 rounded-md border-blue-900/50 bg-blue-300 p-1 text-xs font-light text-blue-950 shadow-sm"
+				><Play strokeWidth="1.5" class="size-4" /> Start working</button
+			>
 		</div>
 		<div>
-			<button onclick={deleteTask} class="border-0.5 font-light border-red-900/50 bg-red-300 shadow-sm text-red-950 p-1 rounded-md flex items-center gap-2 text-xs"><Trash strokeWidth="1.5" class="size-4" /> Delete</button>
+			<button
+				onclick={deleteTask}
+				class="border-0.5 flex items-center gap-2 rounded-md border-red-900/50 bg-red-300 p-1 text-xs font-light text-red-950 shadow-sm"
+				><Trash strokeWidth="1.5" class="size-4" /> Delete</button
+			>
 		</div>
 	</div>
 </dialog>
@@ -362,4 +477,3 @@
 		opacity: 1;
 	}
 </style>
-
