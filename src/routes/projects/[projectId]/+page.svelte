@@ -192,6 +192,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>{data.project.name} | on point</title>
+</svelte:head>
+
 <div class="mx-auto mt-5 max-w-7xl px-10">
 	<a href="/projects" class="absolute -translate-x-10"
 		><ChevronLeft class="size-10 pb-0.5 dark:text-zinc-50" /></a

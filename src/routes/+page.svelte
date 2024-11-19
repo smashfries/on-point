@@ -4,6 +4,10 @@
 	let { data }: { data: PageData } = $props();
 </script>
 
+<svelte:head>
+	<title>on point</title>
+</svelte:head>
+
 <div class="mt-10 text-center">
 	<a href="/" class="text-4xl font-medium italic tracking-tighter text-zinc-800 dark:text-zinc-200"
 		>on point</a

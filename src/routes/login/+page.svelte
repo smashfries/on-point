@@ -5,6 +5,10 @@
     let {data, form}: {data: PageData, form: ActionData} = $props();
 </script>
 
+<svelte:head>
+    <title>Log in | on point</title>
+</svelte:head>
+
 <div class="text-center mt-10">
     <a href="/" class="tracking-tighter italic text-zinc-400 font-medium">on point</a>
 </div>

@@ -24,6 +24,10 @@
 
 </script>
 
+<svelte:head>
+	<title>Projects | on point</title>
+</svelte:head>
+
 <div class="mx-auto mt-5 max-w-7xl px-10">
 	<div class="flex items-center justify-between">
 		<h1 class="flex items-center gap-4 text-3xl font-medium tracking-tight dark:text-zinc-50">
