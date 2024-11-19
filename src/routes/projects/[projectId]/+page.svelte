@@ -1,12 +1,15 @@
 <script lang="ts">
 	import Logout from '$lib/ui/components/logout/index.svelte';
 	import ChevronLeft from 'lucide-svelte/icons/chevron-left';
+	import Archive from 'lucide-svelte/icons/archive';
+	import Flame from 'lucide-svelte/icons/flame';
 	import X from 'lucide-svelte/icons/x';
 	import Check from 'lucide-svelte/icons/check';
 	import Trash from 'lucide-svelte/icons/trash';
 	import Play from 'lucide-svelte/icons/play';
 	import type { PageData } from './$types';
 	import { flip } from 'svelte/animate';
+	import { goto } from '$app/navigation';
 
 	let { data }: { data: PageData } = $props();
 
@@ -17,6 +20,9 @@
 
 	let taskDialog: HTMLDialogElement;
 	let taskDialogOpen = $state(false);
+
+	let deleteProjectDialog: HTMLDialogElement;
+	let deleteProjectDialogOpen = $state(false);
 
 	async function createTask() {
 		if (newTaskName === '') return;
@@ -129,6 +135,19 @@
 		setTimeout(() => taskDialog.close(), 200)
 	}
 
+	function openDeleteProjectDialog() {
+		deleteProjectDialog.showModal();
+
+		setTimeout(() => {
+			deleteProjectDialogOpen = true;
+		}, 10)
+	}
+
+	function closeDeleteProjectDialog() {
+		deleteProjectDialogOpen = false;
+		setTimeout(() => deleteProjectDialog.close(), 200)
+	}
+
 	let deletingTask = false;
 	async function deleteTask() {
 		if (deletingTask) return;
@@ -150,6 +169,26 @@
 		} catch (e) {
 			console.log(e);
 		}
+	}
+
+	let deletingProject = false;
+	async function deleteProject() {
+		if (deletingProject) return;
+		deletingProject = true;
+
+		let res;
+		try {
+			res = await fetch(`/projects/${data.project.id}`, {
+				method: 'DELETE'
+			})
+
+			if (res.ok) {
+				goto('/projects')
+			}
+		} catch (e) {
+			console.log(e)
+		}
+		
 	}
 </script>
 
@@ -176,8 +215,17 @@
 				{data.project.description}
 			</div>
 
+			<div class="mt-10 mb-5 flex items-center gap-8">
+				<div class="flex items-center gap-2">
+					<button class="text-xs font-light flex items-center rounded-md p-1 px-2 gap-1 bg-zinc-200 text-zinc-950"><Flame strokeWidth="1.5" class="size-4" /> Stats</button>
+					<button class="text-xs font-light flex items-center rounded-md p-1 px-2 gap-1 bg-green-300 text-green-950"><Archive strokeWidth="1.5" class="size-4" /> Archive</button>
+				</div>
+				<div>
+					<button onclick={openDeleteProjectDialog} class="text-xs font-light flex items-center rounded-md p-1 px-2 gap-1 bg-red-300 text-red-950"><Trash strokeWidth="1.5" class="size-4" /> Delete</button>
+				</div>
+			</div>
 			<div
-				class="mt-10 min-h-96 w-full rounded-t-xl bg-gradient-to-b from-zinc-200 to-transparent p-2 dark:from-zinc-800 dark:to-zinc-900"
+				class="min-h-96 w-full rounded-t-xl bg-gradient-to-b from-zinc-200 to-transparent p-2 dark:from-zinc-800 dark:to-zinc-900"
 			>
 				<p class="mt-10 text-center text-sm text-zinc-600 dark:text-zinc-300">
 					Notepad coming soon...
@@ -254,6 +302,19 @@
 	</div>
 </div>
 
+<dialog bind:this={deleteProjectDialog}
+	class="w-96 rounded-md p-5 text-zinc-800 shadow-md dark:bg-zinc-700 dark:text-zinc-300 {deleteProjectDialogOpen ? 'visible' : ''}"
+	oncancel={(e) => {e.preventDefault(); closeDeleteProjectDialog()}}
+>
+	<h1 class="font-medium text-lg tracking-tight mb-5">Are you sure you want to delete this project?</h1>
+	<p class="text-sm">You will permanently lose all data related to this project and its tasks.</p>
+
+	<div class="mt-10 flex justify-end items-center gap-2">
+		<button class="text-sm p-2 rounded-md px-4 bg-zinc-300 text-zinc-950" onclick={closeDeleteProjectDialog}>Cancel</button>
+		<button class="text-sm p-2 rounded-md px-4 bg-red-300 text-red-950" onclick={deleteProject}>Delete</button>
+	</div>
+</dialog>
+
 <dialog bind:this={taskDialog}
 	class="w-full max-w-3xl rounded-md p-5 text-zinc-800 shadow-md dark:bg-zinc-700 dark:text-zinc-50 {taskDialogOpen ? 'visible' : ''}"
 	oncancel={(e) => {e.preventDefault(); closeTaskDialog()}}
@@ -263,10 +324,10 @@
 
 	<div class="mt-5 flex justify-between items-center">
 		<div>
-			<button class="border-0.5 font-light border-blue-900/50 bg-blue-500 shadow-sm text-blue-50 p-1 rounded-md flex items-center gap-2 text-xs"><Play strokeWidth="1.5" class="size-4" /> Start working</button>
+			<button class="border-0.5 font-light border-blue-900/50 bg-blue-300 shadow-sm text-blue-950 p-1 rounded-md flex items-center gap-2 text-xs"><Play strokeWidth="1.5" class="size-4" /> Start working</button>
 		</div>
 		<div>
-			<button onclick={deleteTask} class="border-0.5 font-light border-red-900/50 dark:bg-red-950/30 bg-red-500/10 shadow-sm text-red-700 dark:text-red-100/90 p-1 rounded-md flex items-center gap-2 text-xs"><Trash strokeWidth="1.5" class="size-4" /> Delete</button>
+			<button onclick={deleteTask} class="border-0.5 font-light border-red-900/50 bg-red-300 shadow-sm text-red-950 p-1 rounded-md flex items-center gap-2 text-xs"><Trash strokeWidth="1.5" class="size-4" /> Delete</button>
 		</div>
 	</div>
 </dialog>
