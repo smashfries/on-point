@@ -45,7 +45,7 @@
 
 		const id = crypto.randomUUID();
 		const title = newTaskName;
-		const order = tasks[tasks.length - 1].order + 1000
+		const order = tasks.length > 0 ? tasks[tasks.length - 1].order + 1000 : 1000;
 
 		tasks.push({
 			id,
