@@ -227,9 +227,12 @@
 		let needsRebalancing = false;
 
 		if (toIndex === 0) {
-			newOrder = tasks[0].order - 1000;
+			newOrder = tasks[1].order - 1000;
+
+			console.log(newOrder)
 		} else if (toIndex === tasks.length - 1) {
-			newOrder = tasks[tasks.length - 1].order + 1000
+			newOrder = tasks[tasks.length - 2].order + 1000
+			console.log(newOrder)
 		} else {
 			const before = tasks[toIndex - 1];
 			const after = tasks[toIndex + 1];

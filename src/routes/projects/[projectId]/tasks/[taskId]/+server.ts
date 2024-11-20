@@ -41,7 +41,7 @@ export const PATCH: RequestHandler = async ({request, locals, params}) => {
         }
     }
 
-    if (body?.order && typeof body.order === 'number' && Number.isInteger(body.order)) {
+    if (body?.order !== undefined && typeof body.order === 'number' && Number.isInteger(body.order)) {
         updateObject.order = body.order
     }
 
