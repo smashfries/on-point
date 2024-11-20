@@ -10,7 +10,6 @@
 	import type { PageData } from './$types';
 	import { flip } from 'svelte/animate';
 	import { goto } from '$app/navigation';
-	import { tick } from 'svelte';
 
 	let { data }: { data: PageData } = $props();
 
@@ -20,6 +19,7 @@
 		id: string;
 		title: string;
 		completed: boolean;
+		order: number;
 		el: HTMLButtonElement | null;
 	};
 
@@ -45,11 +45,13 @@
 
 		const id = crypto.randomUUID();
 		const title = newTaskName;
+		const order = tasks[tasks.length - 1].order + 1000
 
 		tasks.push({
 			id,
 			title,
 			completed: false,
+			order,
 			el: null
 		});
 
@@ -63,7 +65,8 @@
 				},
 				body: JSON.stringify({
 					id,
-					title
+					title,
+					order
 				})
 			});
 
@@ -209,6 +212,60 @@
 
 	let draggedTask = null;
 	let dragPosition = $state(-1);
+
+	async function reOrderTask(task: Task) {
+
+		const fromIndex = tasks.indexOf(task);
+		const toIndex = fromIndex < dragPosition ? dragPosition - 1 : dragPosition
+		tasks.splice(fromIndex, 1);
+		tasks.splice(toIndex, 0, task);
+
+		draggedTask = null;
+		dragPosition = -1;
+
+		let newOrder;
+		let needsRebalancing = false;
+
+		if (toIndex === 0) {
+			newOrder = tasks[0].order - 1000;
+		} else if (toIndex === tasks.length - 1) {
+			newOrder = tasks[tasks.length - 1].order + 1000
+		} else {
+			const before = tasks[toIndex - 1];
+			const after = tasks[toIndex + 1];
+
+			newOrder = Math.floor((before.order + after.order) / 2)
+
+			if (((newOrder - before.order) < 2) || (after.order - newOrder) < 2) {
+				needsRebalancing = true;
+			}
+		}
+
+		tasks[toIndex].order = newOrder;
+
+
+		if (needsRebalancing) {
+			// call api to bulk update task orders
+		} else {
+			// call individual task update api to update order
+			let res;
+			try {
+				res = await fetch(`/projects/${data.project.id}/tasks/${tasks[toIndex].id}`, {
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						order: newOrder
+					})
+				})
+			} catch (e) {
+				console.log(e)
+			}
+		}
+
+
+	}
 </script>
 
 <svelte:head>
@@ -295,17 +352,7 @@
 								draggedTask = task;
 							}}
 							ondragend={(e) => {
-								console.log('dragend')
-								if (task.el) {
-									const img = new Image();
-									e.dataTransfer?.setDragImage(img, 0, 0);
-								}
-								const fromIndex = tasks.indexOf(task);
-								tasks.splice(fromIndex, 1);
-								tasks.splice(fromIndex < dragPosition ? dragPosition - 1 : dragPosition, 0, task);
-
-								draggedTask = null;
-								dragPosition = -1;
+								reOrderTask(task);
 							}}
 							bind:this={task.el}
 							onmouseenter={() => {

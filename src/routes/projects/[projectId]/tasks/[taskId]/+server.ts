@@ -24,11 +24,13 @@ export const PATCH: RequestHandler = async ({request, locals, params}) => {
 
     type UpdateObject = {
         completed: boolean | undefined,
-        completedAt: Date | undefined
+        completedAt: Date | undefined,
+        order: number | undefined
     }
     const updateObject: UpdateObject = {
         completed: undefined,
-        completedAt: undefined
+        completedAt: undefined,
+        order: undefined
     };
 
     if (body?.completed && typeof body.completed === 'boolean') {
@@ -37,6 +39,10 @@ export const PATCH: RequestHandler = async ({request, locals, params}) => {
         if (updateObject.completed) {
             updateObject.completedAt = new Date()
         }
+    }
+
+    if (body?.order && typeof body.order === 'number' && Number.isInteger(body.order)) {
+        updateObject.order = body.order
     }
 
     try {

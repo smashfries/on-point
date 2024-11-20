@@ -1,5 +1,5 @@
 import { relations } from 'drizzle-orm';
-import { pgTable, text, uuid, timestamp, boolean, integer } from 'drizzle-orm/pg-core';
+import { pgTable, text, uuid, timestamp, boolean, bigint, integer } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
 	id: uuid('id').defaultRandom().primaryKey(),
@@ -56,6 +56,7 @@ export const tasks = pgTable('tasks', {
 	projectId: uuid('project_id').references(() => projects.id),
 	userId: uuid('user_id').references(() => users.id).notNull(),
 	title: text('title').notNull(),
+	order: bigint('order', {mode: 'number'}).notNull(),
 	completed: boolean('completed').notNull(),
 	completedAt: timestamp('completed_at'),
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),

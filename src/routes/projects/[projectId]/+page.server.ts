@@ -2,7 +2,7 @@ import { redirect } from "@sveltejs/kit";
 import type { PageServerLoad } from "./$types";
 import { db } from "$lib/server/db";
 import { projects, tasks } from "$lib/server/db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 
 export const load: PageServerLoad = async ({ locals, params }) => {
     const projectId = params.projectId
@@ -21,8 +21,9 @@ export const load: PageServerLoad = async ({ locals, params }) => {
     const projectTasks = await db.select({
         id: tasks.id,
         title: tasks.title,
-        completed: tasks.completed
-    }).from(tasks).where(and(eq(tasks.projectId, projectId), eq(tasks.userId, user), eq(tasks.completed, false)))
+        completed: tasks.completed,
+        order: tasks.order
+    }).from(tasks).where(and(eq(tasks.projectId, projectId), eq(tasks.userId, user), eq(tasks.completed, false))).orderBy(asc(tasks.order))
 
     return {
         project: {...project[0], id: projectId},
