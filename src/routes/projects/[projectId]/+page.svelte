@@ -246,6 +246,30 @@
 
 		if (needsRebalancing) {
 			// call api to bulk update task orders
+			let order = 1000;
+			for (const task of tasks) {
+				task.order = order;
+				order += 1000;
+			}
+
+			let res;
+			try {
+				res = await fetch(`/projects/${data.project.id}/tasks/${tasks[toIndex].id}`, {
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						order: newOrder
+					})
+				})
+
+				res = await fetch(`/projects/${data.project.id}/tasks`, {
+					method: 'PATCH'
+				})
+			} catch (e) {
+				console.log(e)
+			}
 		} else {
 			// call individual task update api to update order
 			let res;
