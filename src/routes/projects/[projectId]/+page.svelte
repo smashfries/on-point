@@ -365,8 +365,8 @@
 			/>
 			<div>
 				<div class="flex gap-4 justify-center items-center p-1 tracking-tight rounded-md text-sm h-9">
-					<a href={`/projects/${data.project.id}`} class="p-1 px-4 rounded-full {data.showCompleted ? 'text-zinc-200' : 'bg-zinc-300 text-zinc-700'}">Todo</a>
-					<a href={`/projects/${data.project.id}?showCompleted`} class="p-1 px-4 rounded-full {data.showCompleted ? 'bg-zinc-300 text-zinc-700' : 'text-zinc-200'}">Done</a>
+					<a href={`/projects/${data.project.id}`} class="p-1 px-4 rounded-full {data.showCompleted ? 'dark:text-zinc-200 text-zinc-700' : 'dark:bg-zinc-300 dark:text-zinc-700 bg-zinc-700 text-zinc-100'}">Todo</a>
+					<a href={`/projects/${data.project.id}?showCompleted`} class="p-1 px-4 rounded-full {data.showCompleted ? 'dark:bg-zinc-300 dark:text-zinc-700 bg-zinc-700 text-zinc-100' : 'dark:text-zinc-200 text-zinc-700'}">Done</a>
 				</div>
 				<div
 					class="relative mb-1 h-1 w-full {dragPosition === 0
