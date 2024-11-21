@@ -33,7 +33,7 @@ export const PATCH: RequestHandler = async ({request, locals, params}) => {
         order: undefined
     };
 
-    if (body?.completed && typeof body.completed === 'boolean') {
+    if (body?.completed !== undefined && typeof body.completed === 'boolean') {
         updateObject.completed = body.completed
 
         if (updateObject.completed) {

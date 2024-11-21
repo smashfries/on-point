@@ -24,13 +24,17 @@
 	};
 
 	let tasks: Task[] = $state(
-		data.tasks.map((task) => {
+		[]
+	);
+
+	$effect(() => {
+		tasks = data.tasks.map((task) => {
 			return {
 				...task,
 				el: null
-			};
+			}
 		})
-	);
+	})
 
 	let selectedTaskId = $state('');
 
@@ -94,7 +98,7 @@
 		const taskIndex = tasks.findIndex((task) => task.id === id);
 		tasks[taskIndex].completed = !tasks[taskIndex].completed;
 
-		if (tasks[taskIndex].completed) {
+		if ((!data.showCompleted && tasks[taskIndex].completed) || (data.showCompleted && !tasks[taskIndex].completed)) {
 			setTimeout(() => {
 				removeCompletedTask(id);
 			}, 3000);
@@ -109,7 +113,9 @@
 
 	async function removeCompletedTask(id: string) {
 		const task = tasks.find((task) => task.id === id);
-		if (task?.completed) {
+		if (!task) return;
+
+		if ((!data.showCompleted && task?.completed) || (data.showCompleted && !task?.completed)) {
 			tasks = tasks.filter((task) => task.id !== id);
 
 			try {
@@ -119,17 +125,17 @@
 						'Content-Type': 'application/json'
 					},
 					body: JSON.stringify({
-						completed: true
+						completed: !data.showCompleted
 					})
 				});
 
 				if (!res.ok) {
-					tasks.push({ ...task, completed: false });
+					tasks.push({ ...task, completed: data.showCompleted });
 				}
 			} catch (e) {
 				console.log(e);
 
-				tasks.push({ ...task, completed: false });
+				tasks.push({ ...task, completed: data.showCompleted });
 			}
 		}
 	}
@@ -358,6 +364,10 @@
 				class="mb-6 h-9 w-full rounded-md border-zinc-200 bg-white text-sm text-zinc-800 outline-none transition-all duration-200 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-300 dark:border-transparent"
 			/>
 			<div>
+				<div class="flex gap-4 justify-center items-center p-1 tracking-tight rounded-md text-sm h-9">
+					<a href={`/projects/${data.project.id}`} class="p-1 px-4 rounded-full {data.showCompleted ? 'text-zinc-200' : 'bg-zinc-300 text-zinc-700'}">Todo</a>
+					<a href={`/projects/${data.project.id}?showCompleted`} class="p-1 px-4 rounded-full {data.showCompleted ? 'bg-zinc-300 text-zinc-700' : 'text-zinc-200'}">Done</a>
+				</div>
 				<div
 					class="relative mb-1 h-1 w-full {dragPosition === 0
 						? 'bg-blue-500'
@@ -374,7 +384,7 @@
 						ondragover={(e) => e.preventDefault()}
 					>
 						<button
-							draggable="true"
+							draggable={!data.showCompleted}
 							ondragstart={(e) => {
 								draggedTask = task;
 							}}
