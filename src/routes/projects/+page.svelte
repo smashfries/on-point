@@ -22,6 +22,21 @@
 		setTimeout(() => newProjectDialog.close(), 200)
 	}
 
+	function scoreColor(score: number) {
+		let color = 'bg-red-500'
+		if (score > 25) {
+			color = 'bg-orange-500'
+		}
+		if (score > 50) {
+			color = 'bg-blue-500'
+		} 
+		if (score > 75) {
+			color = 'bg-green-500'
+		}
+
+		return color;
+	}
+
 </script>
 
 <svelte:head>
@@ -48,10 +63,12 @@
 				href={`/projects/${project.id}`}
 				class="flex h-24 w-64 items-stretch gap-2 rounded-md border bg-slate-50 p-1 shadow-sm dark:border-transparent dark:bg-zinc-700 dark:text-zinc-50"
 			>
-				<div class="flex h-full w-1 rounded-md bg-red-100"></div>
+				<div class="flex flex-col justify-end h-full w-1 rounded-md bg-zinc-100 shrink-0">
+					<div class="w-full rounded-md {scoreColor(project.score)}" style="height: {project.score}%"></div>
+				</div>
 				<div>
-					<h2 class="text-lg font-medium tracking-tight">{project.name}</h2>
-					<p class="text-sm text-gray-600 dark:text-zinc-200">{project.description}</p>
+					<h2 class="text-lg font-medium tracking-tight mb-2">{project.name}</h2>
+					<p class="text-sm text-gray-600 dark:text-zinc-200 line-clamp-2">{project.description}</p>
 				</div>
 			</a>
 		{/each}
