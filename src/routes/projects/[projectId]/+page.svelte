@@ -320,7 +320,7 @@
 	</div>
 
 	<div class="mt-2 grid grid-cols-12 gap-4">
-		<div class="col-span-8 col-start-1">
+		<div class="col-span-12 md:col-span-8 col-start-1">
 			<div
 				contenteditable="plaintext-only"
 				class="cursor-text text-lg outline-none dark:text-zinc-100"
@@ -328,7 +328,7 @@
 				{data.project.description}
 			</div>
 
-			<div class="mb-5 mt-10 flex items-center gap-8">
+			<div class="mb-5 mt-10 flex flex-wrap items-center gap-x-8 gap-y-2">
 				<div class="flex items-center gap-2">
 					<button
 						class="flex items-center gap-1 rounded-md bg-zinc-200 p-1 px-2 text-xs font-light text-zinc-950"
@@ -355,7 +355,7 @@
 				</p>
 			</div>
 		</div>
-		<div class="col-span-4 col-end-13 flex flex-col gap-2">
+		<div class="col-span-12 md:col-span-4 col-end-13 flex flex-col gap-2">
 			<input
 				onkeydown={createTaskKeyDown}
 				bind:value={newTaskName}
