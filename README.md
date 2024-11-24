@@ -1,22 +1,26 @@
-# sv
+# on point
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+A simple web app to track the status and progress of your projects. Built to incentivize consistency and support individuals working on multiple projects in parallel.
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
+> This project has just recently begun, and is therefore a work in progress. I primarily built it for myself and then chose to make it open-source. Feel free to submit self-host, submit issues, contribute, or fork.
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+This is a monolith Sveltekit application. I have deployed this using the Node adapter, however others can easily be integrated.
+
+### Environment Variables
+
+In order to run this app, the following environment variables are needed. During development, they can easily be set by adding a `.env` file in the root of the project.
+
+```
+DATABASE_URL
+SECRET
+IPINFO_TOKEN
+```
+
+`DATABASE_URL` is the URL to a PostgreSQL database. `SECRET` can be any random string. It is used to sign tokens for authentication. `IPINFO_TOKEN` is used to authenticate with the IPinfo API to retrieve information about a user such as the region they are from. This is purely for basic analytical purposes.
+
+Install dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
 ```bash
 npm run dev
@@ -34,5 +38,3 @@ npm run build
 ```
 
 You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
