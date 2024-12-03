@@ -340,6 +340,53 @@
 			(e.target as HTMLElement).blur();
 		}
 	}
+
+	async function updateTaskTitle(taskId: string, title: string, oldTitle: string) {
+		const taskIndex = tasks.findIndex(t => t.id === taskId);
+		if (taskIndex !== -1) {
+			tasks[taskIndex].title = title;
+		}
+
+		try {
+			const res = await fetch(`/projects/${data.project.id}/tasks/${taskId}`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ title })
+			});
+
+			if (!res.ok) {
+				console.error('Failed to update task title');
+				// Revert to old title on error
+				if (taskIndex !== -1) {
+					tasks[taskIndex].title = oldTitle;
+				}
+			}
+		} catch (e) {
+			console.error('Error updating task title:', e);
+			// Revert to old title on error
+			if (taskIndex !== -1) {
+				tasks[taskIndex].title = oldTitle;
+			}
+		}
+	}
+
+	function handleTaskTitleUpdate(e: Event) {
+		const target = e.target as HTMLElement;
+		const newTitle = target.textContent?.trim();
+		const task = tasks.find((task) => task.id === selectedTaskId);
+		if (newTitle && task && newTitle !== task.title) {
+			updateTaskTitle(selectedTaskId, newTitle, task.title);
+		}
+	}
+
+	function handleTaskTitleKeyDown(e: KeyboardEvent) {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			(e.target as HTMLElement).blur();
+		}
+	}
 </script>
 
 <svelte:head>
@@ -561,6 +608,8 @@
 	<h1
 		contenteditable="plaintext-only"
 		class="cursor-text text-lg font-medium tracking-tight outline-none"
+		onblur={handleTaskTitleUpdate}
+		onkeydown={handleTaskTitleKeyDown}
 	>
 		{tasks.find((task) => task.id === selectedTaskId)?.title}
 	</h1>

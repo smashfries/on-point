@@ -26,12 +26,18 @@ export const PATCH: RequestHandler = async ({ request, locals, params }) => {
         completed: boolean | undefined,
         completedAt: Date | null | undefined,
         order: number | undefined,
+        title: string | undefined,
     }
     const updateObject: UpdateObject = {
         completed: undefined,
         completedAt: undefined,
         order: undefined,
+        title: undefined,
     };
+
+    if (body?.title !== undefined && typeof body.title === 'string' && body.title.trim() !== '') {
+        updateObject.title = body.title.trim();
+    }
 
     if (body?.completed !== undefined && typeof body.completed === 'boolean') {
         updateObject.completed = body.completed
@@ -96,12 +102,14 @@ export const PATCH: RequestHandler = async ({ request, locals, params }) => {
         updateObject.order = body.order
     }
 
-    try {
-        await db.update(tasks).set(updateObject).where(eq(tasks.id, params.taskId))
-    } catch (e) {
-        console.log(e)
-
-        error(500, 'db-error')
+    // Only perform update if there are fields to update
+    if (Object.values(updateObject).some(value => value !== undefined)) {
+        try {
+            await db.update(tasks).set(updateObject).where(eq(tasks.id, params.taskId))
+        } catch (e) {
+            console.log(e)
+            error(500, 'db-error')
+        }
     }
 
     return json({
