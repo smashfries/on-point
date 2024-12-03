@@ -299,6 +299,47 @@
 
 
 	}
+
+	async function updateProject(updates: { name?: string; description?: string }) {
+		try {
+			const res = await fetch(`/projects/${data.project.id}`, {
+				method: 'PATCH',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(updates)
+			});
+
+			if (!res.ok) {
+				console.error('Failed to update project');
+			}
+		} catch (e) {
+			console.error('Error updating project:', e);
+		}
+	}
+
+	function handleNameUpdate(e: Event) {
+		const target = e.target as HTMLElement;
+		const name = target.textContent?.trim();
+		if (name && name !== data.project.name) {
+			updateProject({ name, description: data.project.description });
+		}
+	}
+
+	function handleDescriptionUpdate(e: Event) {
+		const target = e.target as HTMLElement;
+		const description = target.textContent?.trim();
+		if (description && description !== data.project.description) {
+			updateProject({ name: data.project.name, description });
+		}
+	}
+
+	function handleKeyDown(e: KeyboardEvent, type: 'name' | 'description') {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			(e.target as HTMLElement).blur();
+		}
+	}
 </script>
 
 <svelte:head>
@@ -313,6 +354,9 @@
 		<h1
 			contenteditable="plaintext-only"
 			class="flex grow cursor-text items-center gap-4 text-3xl font-medium tracking-tight outline-none dark:text-zinc-50"
+			onblur={handleNameUpdate}
+			onkeydown={(e) => handleKeyDown(e, 'name')}
+			role="presentation"
 		>
 			{data.project.name}
 		</h1>
@@ -324,6 +368,9 @@
 			<div
 				contenteditable="plaintext-only"
 				class="cursor-text text-lg outline-none dark:text-zinc-100"
+				onblur={handleDescriptionUpdate}
+				onkeydown={(e) => handleKeyDown(e, 'description')}
+				role="presentation"
 			>
 				{data.project.description}
 			</div>
